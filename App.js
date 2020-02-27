@@ -1,19 +1,53 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { Component } from 'react';
+import { Platform, StyleSheet, Text, View, SafeAreaView, ScrollView, Dimensions, Image } from 'react-native';
+import { createAppContainer } from 'react-navigation';
+import { createDrawerNavigator, DrawerItems } from 'react-navigation-drawer';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-export default function App() {
+import Pokemons from './pokemons';
+import Login from './firebaseLogin';
+
+const { width } = Dimensions.get("window");
+
+const CustomDrawerNavigation = (props) => {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-    </View>
+    <SafeAreaView style={{ flex: 1 }}>
+      <ScrollView>
+        <Icon
+          name="menu"
+          size={20}
+          style={{textAlign: 'right', paddingHorizontal: 10}}
+          onPress={() => props.navigation.closeDrawer()}
+        />
+        <DrawerItems {...props} />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+const Drawer = createDrawerNavigator({
+    Pokemons: {
+    screen: Pokemons,
+    navigationOptions: {
+      title: 'Pokedex'
+    }
   },
-});
+  Login: {
+    screen: Login,
+    navigationOptions: {
+      title: 'Login'
+    }
+  }
+},
+  {
+    drawerPosition: 'left',
+    contentComponent: CustomDrawerNavigation,
+    drawerOpenRoute: 'DrawerOpen',
+    drawerCloseRoute: 'DrawerClose',
+    drawerToggleRoute: 'DrawerToggle',
+    drawerWidth: (width / 3) * 2
+  });
+
+const App = createAppContainer(Drawer);
+
+export default App;
