@@ -33,6 +33,7 @@ export default class MyApp extends Component {
     checkUser() {
         this.props.route.params.firebase.auth().onAuthStateChanged((user) => {
             this.setState({ loading: false, user: user || {} });
+            this.checkUserData();
         });
     }
 
@@ -42,7 +43,9 @@ export default class MyApp extends Component {
 
     getUser() {
         const user = this.state.firebase.auth().currentUser;
-        Alert.alert(user && Object.keys(user).length > 0 ? JSON.stringify(user) : 'Nothing here ! : ' + JSON.stringify(this.state.user))
+        Alert.alert(user && Object.keys(user).length > 0
+            ? JSON.stringify(user)
+            : 'Nothing here ! : ' + JSON.stringify(this.state.user))
     }
 
     signOut = async () => {
@@ -52,6 +55,26 @@ export default class MyApp extends Component {
         }).catch(error => {
             Alert.alert(error.toString(error));
         });
+    }
+
+    checkUserData() {
+        const vm = this;
+        const userUid = this.state.user.uid;
+        this.state.firebase.database().ref('Users/' + userUid + '/').once('value', function (snapshot) {
+            if (!snapshot.exists() && userUid) {
+                vm.writeUserData(userUid);
+            }
+        });
+    }
+
+    writeUserData(userUid) {
+        this.state.firebase.database().ref('Users/' + userUid + '/').set({
+            '0': true
+        }).then((data) => {
+            console.log('data ', data)
+        }).catch((error) => {
+            console.log('error ', error)
+        })
     }
 
     render() {

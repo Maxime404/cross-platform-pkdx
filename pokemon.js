@@ -2,8 +2,11 @@ import React, { Component } from 'react';
 import {
   View,
   Text,
-  Button
+  Button,
+  ScrollView,
+  Image
 } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from './assets/styles';
 
 export default class Details extends Component {
@@ -23,7 +26,7 @@ export default class Details extends Component {
     const { params } = this.props.route;
     const pokemon = params ? params.pokemon : null;
 
-    this.setState({pokemon: pokemon});
+    this.setState({ pokemon: pokemon });
 
     this.fetchPokemonDetails(pokemon.url)
   }
@@ -37,14 +40,33 @@ export default class Details extends Component {
 
     const data = await response.json();
 
-    this.setState({pokemon: data});
+    this.setState({ pokemon: data });
+
+    this.state.pokemon.image = data.sprites.front_default;
+    this.setState(this.state.pokemon);
   }
 
   render() {
     return (
-      <View style={styles.view}>
-        <Text>{JSON.stringify(this.state.pokemon.id)}</Text>
-    </View>
+      <ScrollView style={styles.scrollView}>
+        <Image
+          style={styles.pokeballImgBg}
+          source={require('./assets/pokeball.png')}
+        />
+        <View style={styles.viewList}>
+          <View style={styles.pokeCard}>
+            <View style={styles.viewPokeImg}>
+              <Image
+                style={styles.pokeImg}
+                source={{ uri: this.state.pokemon.image }}
+              />
+            </View>
+            <View style={styles.viewList}>
+              <Text>{JSON.stringify(this.state.pokemon.weight)}</Text>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
     );
   }
 }

@@ -6,6 +6,7 @@ import {
   ScrollView,
   Image
 } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from './assets/styles';
 
 export default class List extends Component {
@@ -57,7 +58,7 @@ export default class List extends Component {
       this.state.pokemons[id].id = data.id;
       this.state.pokemons[id].image = data.sprites.front_default;
     }
-    
+
     this.setState(this.state.pokemons[id]);
   }
 
@@ -70,20 +71,31 @@ export default class List extends Component {
       <ScrollView style={styles.scrollView}>
         <View style={styles.viewList}>
           {this.state.pokemons.map((pokemon) =>
-
             <TouchableOpacity
-              style={styles.viewListBordered}
+              key={pokemon.id}
+              style={styles.pokeCards}
               onPress={() => this.goToPokemonDetailsPage(pokemon)}
             >
-              <Image
-                style={styles.img}
-                source={{ uri: pokemon.image }}
-              />
-              <Text style={{ paddingHorizontal: 5 }}>{pokemon.name}</Text>
-              <Text style={{ paddingHorizontal: 5 }}>{pokemon.id}</Text>
+              <View style={{ marginHorizontal: 10 }}>
+                <Text style={{ fontSize: 17, fontWeight: 'bold' }}>{pokemon.name}</Text>
+                <Text style={{ fontSize: 14 }}>Index : {pokemon.id}</Text>
+              </View>
+              <View style={styles.viewImg}>
+                <Image
+                  style={styles.pokeballImg}
+                  source={require('./assets/pokeball.png')}
+                />
+                <Image
+                  style={styles.img}
+                  source={{ uri: pokemon.image }}
+                />
+                <Icon
+                  name="star-outline"
+                  size={20}
+                  style={{ marginTop: -30, marginRight: -5 }}
+                />
+              </View>
             </TouchableOpacity>
-
-
           )}
         </View>
       </ScrollView>

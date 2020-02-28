@@ -22,29 +22,29 @@ export default class MyApp extends Component {
 
     componentDidMount() {
         const { params } = this.props.route;
-        const { firebase } = params || {};
+        const { firebase } = params || {};
 
         this.setState({ firebase });
     }
 
     goTo(page, params = {}) {
-        params = { firebase: this.state.firebase } ;
+        params = { firebase: this.state.firebase };
         this.props.navigation.navigate(page, params);
     }
 
     signUp() {
         if (this.state.password === this.state.passwordConfirm) {
             this.state.firebase
-            .auth()
-            .createUserWithEmailAndPassword(this.state.email, this.state.password)
-            .then(res => {
-                Alert.alert(JSON.stringify('Sign Up successful !'));
-                //console.log(res);
-                this.setState({ email: '', password: '', passwordConfirm: '' });
-                this.goTo('User');
-            }).catch(error => {
-                Alert.alert(error.toString(error));
-            });
+                .auth()
+                .createUserWithEmailAndPassword(this.state.email, this.state.password)
+                .then(res => {
+                    Alert.alert(JSON.stringify('Sign Up successful !'));
+                    //console.log(res);
+                    this.setState({ email: '', password: '', passwordConfirm: '' });
+                    this.goTo('User');
+                }).catch(error => {
+                    Alert.alert(error.toString(error));
+                });
         } else {
             Alert.alert('Error: Passwords are different');
         }
