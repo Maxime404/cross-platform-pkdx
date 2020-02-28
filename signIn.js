@@ -14,6 +14,7 @@ export default class MyApp extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            loading: true,
             email: '',
             password: '',
             user: null
@@ -21,28 +22,21 @@ export default class MyApp extends Component {
     }
 
     componentDidMount() {
-        console.log('CDM');
         this.checkUser();
     }
 
     checkUser() {
-        let user = {};
-        setTimeout(function () {
-            user = firebase.auth().currentUser || null;
-        }, 1);
-
-
-        this.setState(this.state.user = user);
-
-        console.log(firebase ? "f-oui" : "f-nope")
-        console.log(user ? "u-oui" : "u-nope : " + user)
-        console.log(this.state.user ? "su-oui : " + this.state.user : "su-nope")
-
-        if (user) this.goTo('User');
+        firebase.auth().onAuthStateChanged((user) => {
+            this.setState({ loading: false, user });
+            if (user && Object.keys(user).length > 0) {
+                this.goTo('User', { user: user });
+            }
+        });
     }
 
-    goTo(page) {
-        this.props.navigation.navigate(page);
+    goTo(page, params = {}) {
+        params = {firebase: firebase} ;
+        this.props.navigation.navigate(page, params);
     }
 
     signIn() {

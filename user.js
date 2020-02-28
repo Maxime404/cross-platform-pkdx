@@ -32,12 +32,24 @@ export default class MyApp extends Component {
         this.state = {
             email: '',
             password: '',
-            user: {}
+            firebase: {},
+            user: {},
         };
+    }
+
+    componentDidMount() {
+        const { params } = this.props.route;
+        const { firebase, user } = params || {};
+
+        this.setState({ firebase, user });
     }
 
     goTo = (page) => {
         this.props.navigation.navigate(page);
+    }
+
+    getUser = () => {
+        Alert.alert(Object.keys(this.state.user).length > 0 ? JSON.stringify(this.state.user) : 'Nothing here ! : ' + JSON.stringify(this.state.user))
     }
 
     signOut = async () => {
@@ -64,7 +76,7 @@ export default class MyApp extends Component {
                     <View style={{ marginTop: 20 }}>
                         <Button
                             title="Show user"
-                            //onPress={this.getUser}
+                            onPress={this.getUser}
                         />
                     </View>
                 </View>

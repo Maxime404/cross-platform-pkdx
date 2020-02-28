@@ -7,23 +7,7 @@ import {
     Alert,
     SafeAreaView
 } from 'react-native';
-import * as firebase from "firebase";
 import styles from './assets/styles';
-
-const firebaseConfig = {
-    apiKey: "AIzaSyDA4vg-KrM-nA_tFx5DCGVZVlCp-F6YbN4",
-    authDomain: "cross-platform-pkdx.firebaseapp.com",
-    databaseURL: "https://cross-platform-pkdx.firebaseio.com",
-    projectId: "cross-platform-pkdx",
-    storageBucket: "cross-platform-pkdx.appspot.com",
-    messagingSenderId: "407208827338",
-    appId: "1:407208827338:web:0a4afdef0fdc251e915733",
-    measurementId: "G-SWSMLM4ZCP"
-};
-// Initialize Firebase
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
 
 export default class MyApp extends Component {
     constructor(props) {
@@ -31,17 +15,18 @@ export default class MyApp extends Component {
         this.state = {
             email: '',
             password: '',
+            passwordConfirm: '',
+            firebase: {},
             user: {}
         };
     }
 
     componentDidMount() {
-        this.checkUser();
-    }
+        const { params } = this.props.route;
+        const { firebase } = params || {};
+        const { user } = params || {};
 
-    checkUser = () => {
-        const user = firebase.auth().currentUser;
-        if (user) this.goTo('User');
+        this.setState({ firebase, user });
     }
 
     goTo(page) {
@@ -49,8 +34,8 @@ export default class MyApp extends Component {
     }
 
     signUp() {
-
-        firebase
+        if (this.state.password === this.state.passwordConfirm) {
+            this.state.firebase
             .auth()
             .createUserWithEmailAndPassword(this.state.email, this.state.password)
             .then(res => {
@@ -60,6 +45,9 @@ export default class MyApp extends Component {
             }).catch(error => {
                 Alert.alert(error.toString(error));
             });
+        } else {
+            Alert.alert('Error: Passwords are different');
+        }
     }
 
     render() {
@@ -86,13 +74,13 @@ export default class MyApp extends Component {
                         {this.state.password}
                     </TextInput>
                     <TextInput
-                        name="password"
+                        name="passwordConfirm"
                         secureTextEntry={true}
                         style={{ height: 30, width: 300, borderBottomWidth: 1.0, marginRight: 5 }}
-                        placeholder="Confirm your password"
-                        onChangeText={password => this.setState({ password })}
+                        placeholder="Confirm password"
+                        onChangeText={passwordConfirm => this.setState({ passwordConfirm })}
                     >
-                        {this.state.password}
+                        {this.state.passwordConfirm}
                     </TextInput>
                     <View style={{ flexDirection: 'row', marginTop: 10 }}>
                         <Button
