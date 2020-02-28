@@ -16,21 +16,20 @@ export default class MyApp extends Component {
             email: '',
             password: '',
             passwordConfirm: '',
-            firebase: {},
-            user: {}
+            firebase: {}
         };
     }
 
     componentDidMount() {
         const { params } = this.props.route;
         const { firebase } = params || {};
-        const { user } = params || {};
 
-        this.setState({ firebase, user });
+        this.setState({ firebase });
     }
 
-    goTo(page) {
-        this.props.navigation.navigate(page);
+    goTo(page, params = {}) {
+        params = { firebase: this.state.firebase } ;
+        this.props.navigation.navigate(page, params);
     }
 
     signUp() {
@@ -41,7 +40,8 @@ export default class MyApp extends Component {
             .then(res => {
                 Alert.alert(JSON.stringify('Sign Up successful !'));
                 //console.log(res);
-                this.setState({ email: '', password: '' });
+                this.setState({ email: '', password: '', passwordConfirm: '' });
+                this.goTo('User');
             }).catch(error => {
                 Alert.alert(error.toString(error));
             });

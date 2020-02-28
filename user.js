@@ -7,24 +7,7 @@ import {
     Alert,
     SafeAreaView
 } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import * as firebase from "firebase";
 import styles from './assets/styles';
-
-const firebaseConfig = {
-    apiKey: "AIzaSyDA4vg-KrM-nA_tFx5DCGVZVlCp-F6YbN4",
-    authDomain: "cross-platform-pkdx.firebaseapp.com",
-    databaseURL: "https://cross-platform-pkdx.firebaseio.com",
-    projectId: "cross-platform-pkdx",
-    storageBucket: "cross-platform-pkdx.appspot.com",
-    messagingSenderId: "407208827338",
-    appId: "1:407208827338:web:0a4afdef0fdc251e915733",
-    measurementId: "G-SWSMLM4ZCP"
-};
-// Initialize Firebase
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
 
 export default class MyApp extends Component {
     constructor(props) {
@@ -34,26 +17,36 @@ export default class MyApp extends Component {
             password: '',
             firebase: {},
             user: {},
+            loading: true
         };
     }
 
     componentDidMount() {
         const { params } = this.props.route;
-        const { firebase, user } = params || {};
+        const { firebase } = params || {};
+        const { user } = params || {};
 
         this.setState({ firebase, user });
+        this.checkUser();
     }
 
-    goTo = (page) => {
+    checkUser() {
+        this.props.route.params.firebase.auth().onAuthStateChanged((user) => {
+            this.setState({ loading: false, user: user || {} });
+        });
+    }
+
+    goTo(page) {
         this.props.navigation.navigate(page);
     }
 
-    getUser = () => {
-        Alert.alert(Object.keys(this.state.user).length > 0 ? JSON.stringify(this.state.user) : 'Nothing here ! : ' + JSON.stringify(this.state.user))
+    getUser() {
+        const user = this.state.firebase.auth().currentUser;
+        Alert.alert(user && Object.keys(user).length > 0 ? JSON.stringify(user) : 'Nothing here ! : ' + JSON.stringify(this.state.user))
     }
 
     signOut = async () => {
-        await firebase.auth().signOut().then(res => {
+        await this.state.firebase.auth().signOut().then(res => {
             Alert.alert(JSON.stringify('Sign Out successful !'));
             this.goTo('SignIn');
         }).catch(error => {
@@ -70,13 +63,13 @@ export default class MyApp extends Component {
                         <Button
                             style={styles.button}
                             title="Sign Out"
-                            onPress={this.signOut}
+                            onPress={() => this.signOut()}
                         />
                     </View>
                     <View style={{ marginTop: 20 }}>
                         <Button
                             title="Show user"
-                            onPress={this.getUser}
+                            onPress={() => this.getUser()}
                         />
                     </View>
                 </View>

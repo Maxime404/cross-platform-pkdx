@@ -14,10 +14,10 @@ export default class MyApp extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            loading: true,
             email: '',
             password: '',
-            user: null
+            user: {},
+            loading: true
         };
     }
 
@@ -35,7 +35,7 @@ export default class MyApp extends Component {
     }
 
     goTo(page, params = {}) {
-        params = {firebase: firebase} ;
+        params = { firebase: firebase };
         this.props.navigation.navigate(page, params);
     }
 
@@ -52,12 +52,6 @@ export default class MyApp extends Component {
             .catch(error => {
                 Alert.alert(error.toString(error));
             });
-    }
-
-    showUser = () => {
-        const user = firebase.auth().currentUser;
-
-        Alert.alert(this.state.user ? JSON.stringify(user) : 'Nothing here ! : ' + user)
     }
 
     render() {
@@ -94,18 +88,6 @@ export default class MyApp extends Component {
                             style={styles.button}
                             title="Sign Up"
                             onPress={() => this.goTo('SignUp')}
-                        />
-                    </View>
-                    <View style={{ marginTop: 20 }}>
-                        <Button
-                            title="Show user"
-                            onPress={this.showUser}
-                        />
-                    </View>
-                    <View style={{ marginTop: 20 }}>
-                        <Button
-                            title="Check user"
-                            onPress={() => this.checkUser()}
                         />
                     </View>
                 </View>
