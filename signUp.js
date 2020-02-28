@@ -44,18 +44,18 @@ export default class MyApp extends Component {
         if (user) this.goTo('User');
     }
 
-    goTo = (page) => {
+    goTo(page) {
         this.props.navigation.navigate(page);
     }
 
-    signUp = () => {
+    signUp() {
 
         firebase
             .auth()
             .createUserWithEmailAndPassword(this.state.email, this.state.password)
-            .then(user => {
+            .then(res => {
                 Alert.alert(JSON.stringify('Sign Up successful !'));
-                //console.log(user);
+                //console.log(res);
                 this.setState({ email: '', password: '' });
             }).catch(error => {
                 Alert.alert(error.toString(error));
@@ -98,12 +98,12 @@ export default class MyApp extends Component {
                         <Button
                             style={styles.button}
                             title="Sign In"
-                            onPress={this.goTo('SignIn')}
+                            onPress={() => this.goTo('SignIn')}
                         />
                         <Button
                             style={styles.button}
                             title="Sign Up"
-                            onPress={this.signUp}
+                            onPress={() => this.signUp()}
                         />
                     </View>
                 </View>

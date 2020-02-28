@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import styles from './assets/styles';
 
-export default class FirstPage extends Component {
+export default class List extends Component {
 
   constructor(props) {
     super(props);
@@ -39,12 +39,12 @@ export default class FirstPage extends Component {
 
   getPokemonsDetails() {
     this.state.pokemons.forEach(pokemon => {
-      this.fetchPokemonDetails(pokemon.url);
+      this.fetchPokemonDetails(pokemon);
     });
   }
 
-  async fetchPokemonDetails(url) {
-    const response = await fetch(url, {
+  async fetchPokemonDetails(pokemon) {
+    const response = await fetch(pokemon.url, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -53,9 +53,11 @@ export default class FirstPage extends Component {
     const data = await response.json();
     const id = data.id - 1;
 
-    this.state.pokemons[id].id = data.id;
-    this.state.pokemons[id].image = data.sprites.front_default;
-
+    if (this.state.pokemons[id].url === pokemon.url) {
+      this.state.pokemons[id].id = data.id;
+      this.state.pokemons[id].image = data.sprites.front_default;
+    }
+    
     this.setState(this.state.pokemons[id]);
   }
 
@@ -71,7 +73,7 @@ export default class FirstPage extends Component {
 
             <TouchableOpacity
               style={styles.viewListBordered}
-              onPress={(url) => this.goToPokemonDetailsPage(pokemon)}
+              onPress={() => this.goToPokemonDetailsPage(pokemon)}
             >
               <Image
                 style={styles.img}

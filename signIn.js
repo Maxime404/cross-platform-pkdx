@@ -7,23 +7,8 @@ import {
     Alert,
     SafeAreaView
 } from 'react-native';
-import * as firebase from "firebase";
 import styles from './assets/styles';
-
-const firebaseConfig = {
-    apiKey: "AIzaSyDA4vg-KrM-nA_tFx5DCGVZVlCp-F6YbN4",
-    authDomain: "cross-platform-pkdx.firebaseapp.com",
-    databaseURL: "https://cross-platform-pkdx.firebaseio.com",
-    projectId: "cross-platform-pkdx",
-    storageBucket: "cross-platform-pkdx.appspot.com",
-    messagingSenderId: "407208827338",
-    appId: "1:407208827338:web:0a4afdef0fdc251e915733",
-    measurementId: "G-SWSMLM4ZCP"
-};
-// Initialize Firebase
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
+import firebase from './firebaseConfig';
 
 export default class MyApp extends Component {
     constructor(props) {
@@ -31,31 +16,54 @@ export default class MyApp extends Component {
         this.state = {
             email: '',
             password: '',
-            user: {}
+            user: null
         };
     }
 
-    checkUser = () => {
-        const user = firebase.auth().currentUser;
-        if (user) this.goToSignUp;
+    componentDidMount() {
+        console.log('CDM');
+        this.checkUser();
     }
 
-    goToSignUp = () => {
-        this.props.navigation.navigate('SignUp');
+    checkUser() {
+        let user = {};
+        setTimeout(function () {
+            user = firebase.auth().currentUser || null;
+        }, 1);
+
+
+        this.setState(this.state.user = user);
+
+        console.log(firebase ? "f-oui" : "f-nope")
+        console.log(user ? "u-oui" : "u-nope : " + user)
+        console.log(this.state.user ? "su-oui : " + this.state.user : "su-nope")
+
+        if (user) this.goTo('User');
     }
 
-    signIn = () => {
+    goTo(page) {
+        this.props.navigation.navigate(page);
+    }
+
+    signIn() {
         firebase
             .auth()
             .signInWithEmailAndPassword(this.state.email, this.state.password)
             .then(res => {
-                Alert.alert(JSON.stringify('Sign Up successful !'));
                 //console.log(res);
+                Alert.alert(JSON.stringify('Sign In successful !'));
                 this.setState({ email: '', password: '' });
+                this.checkUser();
             })
             .catch(error => {
                 Alert.alert(error.toString(error));
             });
+    }
+
+    showUser = () => {
+        const user = firebase.auth().currentUser;
+
+        Alert.alert(this.state.user ? JSON.stringify(user) : 'Nothing here ! : ' + user)
     }
 
     render() {
@@ -64,6 +72,7 @@ export default class MyApp extends Component {
                 <View style={styles.view}>
                     <Text style={styles.title}>Login</Text>
                     <TextInput
+                        caretHidden
                         name="email"
                         autoCapitalize='none'
                         style={{ height: 30, width: 300, borderBottomWidth: 1.0, marginRight: 5 }}
@@ -85,12 +94,24 @@ export default class MyApp extends Component {
                         <Button
                             style={styles.button}
                             title="Sign In"
-                            onPress={this.signIn}
+                            onPress={() => this.signIn()}
                         />
                         <Button
                             style={styles.button}
                             title="Sign Up"
-                            onPress={this.goToSignUp}
+                            onPress={() => this.goTo('SignUp')}
+                        />
+                    </View>
+                    <View style={{ marginTop: 20 }}>
+                        <Button
+                            title="Show user"
+                            onPress={this.showUser}
+                        />
+                    </View>
+                    <View style={{ marginTop: 20 }}>
+                        <Button
+                            title="Check user"
+                            onPress={() => this.checkUser()}
                         />
                     </View>
                 </View>

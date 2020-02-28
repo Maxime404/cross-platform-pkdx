@@ -40,20 +40,13 @@ export default class MyApp extends Component {
         this.props.navigation.navigate(page);
     }
 
-    getUser = () => {
-        const user = firebase.auth().currentUser;
-
-        this.setState(this.state.user = user ? user : null);
-        Alert.alert(this.state.user ? JSON.stringify(this.state.user) : 'Nothing here !')
-    }
-
     signOut = async () => {
-        await firebase.auth().signOut()
-        this.goTo('SignIn')
-            .catch(error => {
-                Alert.alert(error.toString(error));
-            });
-
+        await firebase.auth().signOut().then(res => {
+            Alert.alert(JSON.stringify('Sign Out successful !'));
+            this.goTo('SignIn');
+        }).catch(error => {
+            Alert.alert(error.toString(error));
+        });
     }
 
     render() {
@@ -71,7 +64,7 @@ export default class MyApp extends Component {
                     <View style={{ marginTop: 20 }}>
                         <Button
                             title="Show user"
-                            onPress={this.getUser}
+                            //onPress={this.getUser}
                         />
                     </View>
                 </View>
