@@ -46,6 +46,14 @@ export default StyleSheet.create({
     alignItems: "center",
     marginBottom: 10
   },
+  viewSearch: {
+    flexDirection: 'row',
+    justifyContent: "center",
+    alignItems: "center",
+    //backgroundColor: "#EEE",
+    marginHorizontal: 20,
+    borderRadius: 10
+  },
   pokeCards: {
     flexDirection: 'row',
     paddingHorizontal: 10,

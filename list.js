@@ -5,7 +5,9 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
-  Alert
+  Alert,
+  Picker,
+  TextInput
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import firebase from './firebaseConfig';
@@ -17,20 +19,22 @@ export default class List extends Component {
     super(props);
     this.state =
     {
+      pokemons_ref: [],
       pokemons: [],
       user: {},
       userUid: '',
-      fav: []
+      fav: [],
+      text: '',
+      order: ''
     }
   }
 
   componentDidMount() {
     this.fetchPokemonsList();
-    this.checkUser();
   }
 
   async fetchPokemonsList() {
-    const response = await fetch('https://pokeapi.co/api/v2/pokemon/?limit=10', {
+    const response = await fetch('https://pokeapi.co/api/v2/pokemon/?limit=30', {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -39,8 +43,12 @@ export default class List extends Component {
     const data = await response.json();
     //console.log(data)
     //this.setState({ pokemons: data.sort((a, b) => a.ndex - b.ndex) });
+    this.setState({ pokemons_ref: data.results });
     this.setState({ pokemons: data.results });
 
+    this.setState({ fav: [] });
+    this.favSync();
+    this.checkUser();
     this.getPokemonsDetails();
   }
 
@@ -60,12 +68,12 @@ export default class List extends Component {
     const data = await response.json();
     const id = data.id - 1;
 
-    if (this.state.pokemons[id].url === pokemon.url) {
-      this.state.pokemons[id].id = data.id;
-      this.state.pokemons[id].image = data.sprites.front_default;
+    if (this.state.pokemons_ref[id].url === pokemon.url) {
+      this.state.pokemons_ref[id].id = data.id;
+      this.state.pokemons_ref[id].image = data.sprites.front_default;
     }
-
-    this.setState(this.state.pokemons[id]);
+    this.setState(this.state.pokemons_ref[id]);
+    this.setState(this.state.pokemons[id] = this.state.pokemons_ref[id]);
   }
 
   goToPokemonDetailsPage = (pokemon) => {
@@ -84,9 +92,6 @@ export default class List extends Component {
       const userUid = this.state.user && this.state.user.uid || '';
       this.setState({ userUid });
       this.checkUserData();
-    } else {
-      this.setState({fav: []});
-      this.favSync();
     }
   }
 
@@ -153,9 +158,75 @@ export default class List extends Component {
     });
   }
 
+  handleSearchChange(text) {
+    this.setState({ text });
+    this.setState({
+      pokemons: this.state.pokemons_ref.filter((pokemon) => {
+        return this.ignoreCase(`${pokemon.id}${pokemon.name}`).includes(this.ignoreCase(text));
+      })
+    });
+  }
+
+  handleSelectChange(order) {
+    this.setState({ order });
+
+    switch (true) {
+      case (order === 'orderById'):
+        this.setState({ pokemons: this.state.pokemons.sort((a, b) => a.id - b.id) });
+        break;
+
+      case (order === 'disorderById'):
+        this.setState({ pokemons: this.state.pokemons.sort((a, b) => b.id - a.id) });
+        break;
+
+      case (order === 'orderByName'):
+        this.setState({
+          pokemons: this.state.pokemons.sort((a, b) => {
+            return (this.ignoreCase(a.name) > this.ignoreCase(b.name)) ? 1 : (this.ignoreCase(a.name) < this.ignoreCase(b.name)) ? -1 : 0
+          })
+        });
+        break;
+
+      case (order === 'disorderByName'):
+        this.setState({
+          pokemons: this.state.pokemons.sort((a, b) => {
+            return (this.ignoreCase(b.name) > this.ignoreCase(a.name)) ? 1 : (this.ignoreCase(b.name) < this.ignoreCase(a.name)) ? -1 : 0
+          })
+        });
+        break;
+
+      default:
+        this.setState({ pokemons: this.state.pokemons.sort((a, b) => a.id - b.id) });
+    }
+  }
+
+  ignoreCase(string) {
+    return string.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  }
+
   render() {
     return (
       <ScrollView style={styles.scrollView}>
+        <View style={styles.viewSearch}>
+          <TextInput
+            name="search"
+            style={{ height: 30, width: 250, borderBottomWidth: 1.0, marginRight: 5 }}
+            placeholder="Search..."
+            onChangeText={text => this.handleSearchChange(text)}
+          >
+            {this.state.text}
+          </TextInput>
+          <Picker
+            selectedValue={this.state.order}
+            style={{ height: 50, width: 50 }}
+            onValueChange={(order) => this.handleSelectChange(order)}
+          >
+            <Picker.Item label="Order by Id" value="orderById" />
+            <Picker.Item label="Disorder by Id" value="disorderById" />
+            <Picker.Item label="Order by Name" value="orderByName" />
+            <Picker.Item label="Disorder by Name" value="disorderByName" />
+          </Picker>
+        </View>
         <View style={styles.viewPokeList}>
           {this.state.pokemons.map((pokemon) =>
             <TouchableOpacity
