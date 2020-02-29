@@ -80,6 +80,7 @@ export default StyleSheet.create({
   pokeCard: {
     paddingHorizontal: 10,
     marginTop: 100,
+    marginBottom: 10,
     paddingBottom: 35,
     width: '100%',
     height: 'auto',
@@ -136,6 +137,10 @@ export default StyleSheet.create({
     fontSize: 40,
     color: "#000"
   },
+  h3: {
+    fontSize: 30,
+    color: "#000"
+  },
   text: {
     color: "#FFF"
   },
@@ -173,6 +178,11 @@ export default StyleSheet.create({
     transform: [{ rotate: '-30deg' }],
     opacity: .5,
     position: 'absolute'
+  },
+  pokeballEnd: {
+    height: 60,
+    width: 60,
+    marginTop: 40
   },
   scrollView: {
     flex: 1,

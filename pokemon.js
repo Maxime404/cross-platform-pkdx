@@ -16,15 +16,16 @@ export default class Details extends Component {
       pokemon: {},
       types: [],
       abilities: [],
+      stats: [],
       game_indices: []
     }
   }
 
   componentDidMount() {
-    this.getPokemonId();
+    this.getPokemon();
   }
 
-  getPokemonId() {
+  getPokemon() {
     const { params } = this.props.route;
     const pokemon = params ? params.pokemon : null;
 
@@ -49,10 +50,12 @@ export default class Details extends Component {
     this.getInfos();
   }
 
+
   getInfos() {
     const pokemon = this.state.pokemon;
     this.setState({ types: pokemon.types });
     this.setState({ abilities: pokemon.abilities });
+    this.setState({ stats: pokemon.stats });
     this.setState({ game_indices: pokemon.game_indices });
   }
 
@@ -72,7 +75,7 @@ export default class Details extends Component {
               />
             </View>
             <View style={styles.viewList}>
-              <Text style={{ fontSize: 20 }}>-- #{this.state.pokemon.id} --</Text>
+              <Text style={styles.h3}>-- #{this.state.pokemon.id} --</Text>
               <View style={{ flex: 1, width: '95%' }}>
                 <View style={styles.viewValue}>
                   <Text style={styles.bold}>Weight :  </Text>
@@ -90,16 +93,31 @@ export default class Details extends Component {
                     <Text style={styles.grey}>{ability.ability.name}  </Text>
                   )}
                 </View>
+                <View style={{ paddingBottom: 10 }}>
+                  <Text style={styles.bold}>{this.state.stats.length > 1 ? "Base stats" : "Base stat"}</Text>
+                  {this.state.stats.map((stat) =>
+                    <View style={{ flexDirection: 'row', width: 160, alignItems: "center" }}>
+                      <View style={{ flexDirection: 'row-reverse', width: 160, alignItems: "center" }}>
+                        <Text style={styles.grey}>{stat.base_stat}  </Text>
+                        <Text style={{ fontWeight: 'bold' }}>{stat.stat.name} : </Text>
+                      </View>
+                      <View style={{ backgroundColor: '#C20000', height: 5, width: stat.base_stat * 1.5, borderRadius: 5 }} />
+                    </View>
+                  )}
+                </View>
                 <View style={{ borderTopWidth: 1.0, borderTopColor: 'grey', paddingTop: 5 }}>
-                  <Text style={styles.bold}>{this.state.types.length > 1 ? "Present in the versions : " : "Present in the version : "}</Text>
+                  <Text style={styles.bold}>{this.state.types.length > 1 ? "Present in the versions" : "Present in the version"}</Text>
                   <Text>
                     {this.state.game_indices.map((game_indice) =>
                       <Text style={styles.grey}>{game_indice.version.name}  </Text>
                     )}
                   </Text>
                 </View>
-
               </View>
+              <Image
+                  style={styles.pokeballEnd}
+                  source={require('./assets/pokeball.png')}
+                />
             </View>
           </View>
         </View>

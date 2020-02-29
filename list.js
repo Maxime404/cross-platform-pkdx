@@ -80,7 +80,7 @@ export default class List extends Component {
     }, 1);
   }
 
-  goToPokemonDetailsPage = (pokemon) => {
+  goToPokemonDetailsPage(pokemon) {
     this.props.navigation.navigate('Pokemon', { pokemon: pokemon });
   }
 
