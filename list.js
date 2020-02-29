@@ -36,7 +36,7 @@ export default class List extends Component {
   }
 
   async fetchPokemonsList() {
-    const response = await fetch('https://pokeapi.co/api/v2/pokemon/?limit=30', {
+    const response = await fetch('https://pokeapi.co/api/v2/pokemon/?limit=26', {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -118,7 +118,7 @@ export default class List extends Component {
         this.writeUserFavData();
       }
     } else {
-      Alert.alert('Vous devez vous connecter pour accéder à cette fonctionnalité...')
+      Alert.alert('You need to be logged in to access this feature...');
     }
   }
 
@@ -241,16 +241,20 @@ export default class List extends Component {
   }
 
   favFilter() {
-    if (this.state.favFilterIcon === 'heart-outline') {
-      this.setState({ favFilterIcon: 'heart' });
-      this.setState({
-        pokemons: this.state.pokemons_ref.filter((pokemon) => {
-          return pokemon.favIcon === "heart"
-        })
-      });
+    if (this.state.user && Object.keys(this.state.user).length > 0) {
+      if (this.state.favFilterIcon === 'heart-outline') {
+        this.setState({ favFilterIcon: 'heart' });
+        this.setState({
+          pokemons: this.state.pokemons_ref.filter((pokemon) => {
+            return pokemon.favIcon === "heart"
+          })
+        });
+      } else {
+        this.setState({ favFilterIcon: 'heart-outline' });
+        this.setState(this.state.pokemons = this.state.pokemons_ref);
+      }
     } else {
-      this.setState({ favFilterIcon: 'heart-outline' });
-      this.setState(this.state.pokemons = this.state.pokemons_ref);
+      Alert.alert('You need to be logged in to access this feature...');
     }
   }
 
