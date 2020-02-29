@@ -62,8 +62,7 @@ export default StyleSheet.create({
       height: 4,
     },
     shadowOpacity: 0.30,
-    shadowRadius: 4.65,
-    elevation: 8,
+    shadowRadius: 4.65
   },
   pokeCard: {
     paddingHorizontal: 10,
@@ -78,8 +77,7 @@ export default StyleSheet.create({
       height: 4,
     },
     shadowOpacity: 0.30,
-    shadowRadius: 4.65,
-    elevation: 8,
+    shadowRadius: 4.65
   },
   viewImg: {
     flexDirection: 'row',

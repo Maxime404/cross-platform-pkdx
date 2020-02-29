@@ -19,6 +19,7 @@ export default class List extends Component {
     {
       pokemons: [],
       user: {},
+      userUid: '',
       fav: []
     }
   }
@@ -74,44 +75,80 @@ export default class List extends Component {
   checkUser() {
     firebase.auth().onAuthStateChanged((user) => {
       this.setState({ loading: false, user });
-      this.checkUserData();
+      this.addUserUid();
     });
   }
 
-  favIt(id, i) {
+  addUserUid() {
+    if (this.state.user && Object.keys(this.state.user).length > 0) {
+      const userUid = this.state.user && this.state.user.uid || '';
+      this.setState({ userUid });
+      this.checkUserData();
+    } else {
+      this.setState({fav: []});
+      this.favSync();
+    }
+  }
+
+  favIt(id) {
     if (this.state.user && Object.keys(this.state.user).length > 0) {
       if (this.state.fav.includes(id)) {
-        this.setState(this.state.pokemons[i].favIcon = 'heart-outline' );
+        const i = this.state.fav.indexOf(id);
+        if (i > -1) {
+          this.state.fav.splice(i, 1);
+          this.setState(this.state.fav);
+          this.writeUserData();
+        }
       } else {
-        this.setState(this.state.pokemons[i].favIcon = 'heart' );
+        this.state.fav.push(id);
+        this.setState(this.state.fav);
+        this.writeUserData();
       }
     } else {
       Alert.alert('Vous devez vous connecter pour accéder à cette fonctionnalité...')
     }
   }
 
+  writeUserData() {
+    const fav = this.state.fav;
+    const userUid = this.state.userUid && this.state.userUid || '';
+    firebase.database().ref('Users/' + userUid + '/').set({
+      fav
+    }).then(() => {
+      this.favSync();
+    }).catch((error) => {
+      Alert.alert('Error : ', error);
+    });
+  }
+
   favSync() {
     const vm = this;
     this.state.pokemons.map((pokemon, i) => {
-      vm.state.pokemons[i].favIcon = (vm.state.fav.includes(pokemon.id)) ? 'heart' : 'heart-outline' ;
+      vm.state.pokemons[i].favIcon = (vm.state.fav.includes(pokemon.id)) ? 'heart' : 'heart-outline';
       vm.setState(vm.state.pokemons[i]);
     });
   }
 
   checkUserData() {
     const vm = this;
-    const userUid = this.state.user.uid || {};
+    const userUid = this.state.userUid && this.state.userUid || '';
     firebase.database().ref('Users/' + userUid + '/').once('value', function (snapshot) {
       if (snapshot.exists() && userUid) {
         vm.readUserData(userUid);
+      } else {
+        console.log(userUid)
+        Alert.alert('Error : There is no user dataaa');
       }
+    }).catch(() => {
+      Alert.alert('Error : ', error);
     });
   }
 
   readUserData(userUid) {
     const vm = this;
     firebase.database().ref('Users/' + userUid + '/').once('value', function (snapshot) {
-      vm.setState(vm.state.fav = snapshot.val().fav);
+      vm.state.fav = snapshot.val().fav;
+      vm.setState(vm.state.fav);
       vm.favSync();
     });
   }
@@ -120,7 +157,7 @@ export default class List extends Component {
     return (
       <ScrollView style={styles.scrollView}>
         <View style={styles.viewPokeList}>
-          {this.state.pokemons.map((pokemon, i) =>
+          {this.state.pokemons.map((pokemon) =>
             <TouchableOpacity
               key={pokemon.id}
               style={styles.pokeCards}
@@ -143,7 +180,7 @@ export default class List extends Component {
                   name={pokemon.favIcon}
                   size={20}
                   style={{ marginTop: -40, marginRight: -10 }}
-                  onPress={() => this.favIt(pokemon.id, i)}
+                  onPress={() => this.favIt(pokemon.id)}
                 />
               </View>
             </TouchableOpacity>
