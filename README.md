@@ -27,7 +27,6 @@ Instruction :
 ## START firebaseConfig.js ##########
 import * as firebase from "firebase";
 const firebaseConfig = {
-    ```
     apiKey: "",
     authDomain: "",
     databaseURL: "",
@@ -36,7 +35,6 @@ const firebaseConfig = {
     messagingSenderId: "",
     appId: "",
     measurementId: ""
-    ```
 };
 
 // Initialize Firebase
