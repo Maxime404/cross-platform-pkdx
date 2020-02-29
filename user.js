@@ -69,6 +69,7 @@ export default class MyApp extends Component {
 
     writeUserData(userUid) {
         this.state.firebase.database().ref('Users/' + userUid + '/').set({
+            email: this.state.user.email,
             fav: [0]
         }).catch((error) => {
             console.log('Error : ', error)

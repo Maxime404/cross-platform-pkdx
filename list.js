@@ -25,16 +25,18 @@ export default class List extends Component {
       userUid: '',
       fav: [],
       text: '',
-      order: ''
+      order: '',
+      favFilterIcon: 'heart-outline'
     }
   }
 
   componentDidMount() {
-    this.fetchPokemonsList();
+    this.setState({ fav: [] });
+    this.checkUser();
   }
 
   async fetchPokemonsList() {
-    const response = await fetch('https://pokeapi.co/api/v2/pokemon/?limit=30', {
+    const response = await fetch('https://pokeapi.co/api/v2/pokemon/?limit=10', {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -45,35 +47,37 @@ export default class List extends Component {
     //this.setState({ pokemons: data.sort((a, b) => a.ndex - b.ndex) });
     this.setState({ pokemons_ref: data.results });
     this.setState({ pokemons: data.results });
-
-    this.setState({ fav: [] });
     this.favSync();
-    this.checkUser();
     this.getPokemonsDetails();
   }
 
   getPokemonsDetails() {
-    this.state.pokemons.forEach(pokemon => {
-      this.fetchPokemonDetails(pokemon);
+    const lenght = this.state.pokemons.length - 1;
+    this.state.pokemons.forEach((pokemon, i) => {
+      this.fetchPokemonDetails(pokemon, lenght, i);
     });
   }
 
-  async fetchPokemonDetails(pokemon) {
+  async fetchPokemonDetails(pokemon, lenght, i) {
     const response = await fetch(pokemon.url, {
       headers: {
         'Content-Type': 'application/json'
       }
     })
-
     const data = await response.json();
     const id = data.id - 1;
+    const pokemons_ref = this.state.pokemons_ref;
+    const vm = this;
 
     if (this.state.pokemons_ref[id].url === pokemon.url) {
-      this.state.pokemons_ref[id].id = data.id;
-      this.state.pokemons_ref[id].image = data.sprites.front_default;
+      pokemons_ref[id].id = data.id;
+      pokemons_ref[id].image = data.sprites.front_default;
     }
-    this.setState(this.state.pokemons_ref[id]);
-    this.setState(this.state.pokemons[id] = this.state.pokemons_ref[id]);
+    this.setState({ pokemons_ref });
+    this.setState({ pokemons: pokemons_ref });
+    setTimeout(() => {
+      if (lenght === i && this.state.userUid) vm.writeUserPokemonsData();
+    }, 1);
   }
 
   goToPokemonDetailsPage = (pokemon) => {
@@ -83,15 +87,17 @@ export default class List extends Component {
   checkUser() {
     firebase.auth().onAuthStateChanged((user) => {
       this.setState({ loading: false, user });
-      this.addUserUid();
+      this.getUserUid();
     });
   }
 
-  addUserUid() {
+  getUserUid() {
     if (this.state.user && Object.keys(this.state.user).length > 0) {
       const userUid = this.state.user && this.state.user.uid || '';
       this.setState({ userUid });
       this.checkUserData();
+    } else {
+      this.fetchPokemonsList();
     }
   }
 
@@ -102,23 +108,35 @@ export default class List extends Component {
         if (i > -1) {
           this.state.fav.splice(i, 1);
           this.setState(this.state.fav);
-          this.writeUserData();
+          this.favSync();
+          this.writeUserFavData();
         }
       } else {
         this.state.fav.push(id);
         this.setState(this.state.fav);
-        this.writeUserData();
+        this.favSync();
+        this.writeUserFavData();
       }
     } else {
       Alert.alert('Vous devez vous connecter pour accéder à cette fonctionnalité...')
     }
   }
 
-  writeUserData() {
+  writeUserFavData() {
     const fav = this.state.fav;
     const userUid = this.state.userUid && this.state.userUid || '';
-    firebase.database().ref('Users/' + userUid + '/').set({
+    firebase.database().ref('Users/' + userUid + '/').update({
       fav
+    }).catch((error) => {
+      Alert.alert('Error : ', error);
+    });
+  }
+
+  writeUserPokemonsData() {
+    const pokemons = this.state.pokemons_ref;
+    const userUid = this.state.userUid && this.state.userUid || '';
+    firebase.database().ref('Users/' + userUid + '/').update({
+      pokemons
     }).then(() => {
       this.favSync();
     }).catch((error) => {
@@ -128,32 +146,50 @@ export default class List extends Component {
 
   favSync() {
     const vm = this;
-    this.state.pokemons.map((pokemon, i) => {
-      vm.state.pokemons[i].favIcon = (vm.state.fav.includes(pokemon.id)) ? 'heart' : 'heart-outline';
-      vm.setState(vm.state.pokemons[i]);
+    this.state.pokemons_ref.map((pokemon, i) => {
+      vm.state.pokemons_ref[i].favIcon = (vm.state.fav.includes(pokemon.id)) ? 'heart' : 'heart-outline';
+      vm.setState(vm.state.pokemons_ref[i]);
+      vm.setState(vm.state.pokemons[i] = vm.state.pokemons_ref[i]);
     });
   }
 
   checkUserData() {
     const vm = this;
     const userUid = this.state.userUid && this.state.userUid || '';
-    firebase.database().ref('Users/' + userUid + '/').once('value', function (snapshot) {
+    firebase.database().ref('Users/' + userUid + '/fav').once('value', function (snapshot) {
       if (snapshot.exists() && userUid) {
-        vm.readUserData(userUid);
-      } else {
-        console.log(userUid)
-        Alert.alert('Error : There is no user dataaa');
+        vm.readUserFavData(userUid);
       }
+    }).catch(() => {
+      Alert.alert('Error : ', error);
+    });
+
+    firebase.database().ref('Users/' + userUid + '/pokemons').once('value', function (snapshot) {
+      if (snapshot.exists() && userUid) {
+        vm.readUserPokemonsData(userUid);
+      } else {
+        vm.fetchPokemonsList();
+      }
+    }).then(() => {
+      vm.favSync();
     }).catch(() => {
       Alert.alert('Error : ', error);
     });
   }
 
-  readUserData(userUid) {
+  readUserFavData(userUid) {
     const vm = this;
-    firebase.database().ref('Users/' + userUid + '/').once('value', function (snapshot) {
-      vm.state.fav = snapshot.val().fav;
+    firebase.database().ref('Users/' + userUid + '/fav').once('value', function (snapshot) {
+      vm.state.fav = snapshot.val();
       vm.setState(vm.state.fav);
+    });
+  }
+
+  readUserPokemonsData(userUid) {
+    const vm = this;
+    firebase.database().ref('Users/' + userUid + '/pokemons').once('value', function (snapshot) {
+      vm.setState({ pokemons_ref: snapshot.val() });
+      vm.setState({ pokemons: snapshot.val() });
       vm.favSync();
     });
   }
@@ -204,6 +240,21 @@ export default class List extends Component {
     return string.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   }
 
+  favFilter() {
+    if (this.state.favFilterIcon === 'heart-outline') {
+      this.setState({ favFilterIcon: 'heart' });
+      this.setState({
+        pokemons: this.state.pokemons_ref.filter((pokemon) => {
+          console.log(pokemon.favIcon)
+          return pokemon.favIcon === "heart"
+        })
+      });
+    } else {
+      this.setState({ favFilterIcon: 'heart-outline' });
+      this.setState(this.state.pokemons = this.state.pokemons_ref);
+    }
+  }
+
   render() {
     return (
       <ScrollView style={styles.scrollView}>
@@ -226,6 +277,11 @@ export default class List extends Component {
             <Picker.Item label="Order by Name" value="orderByName" />
             <Picker.Item label="Disorder by Name" value="disorderByName" />
           </Picker>
+          <Icon
+            name={this.state.favFilterIcon}
+            size={20}
+            onPress={() => this.favFilter()}
+          />
         </View>
         <View style={styles.viewPokeList}>
           {this.state.pokemons.map((pokemon) =>
@@ -236,7 +292,7 @@ export default class List extends Component {
             >
               <View style={{ marginHorizontal: 10 }}>
                 <Text style={{ fontSize: 17, fontWeight: 'bold' }}>{pokemon.name}</Text>
-                <Text style={{ fontSize: 14 }}>Index : {pokemon.id}</Text>
+                <Text style={{ fontSize: 14 }}>#{pokemon.id}</Text>
               </View>
               <View style={styles.viewImg}>
                 <Image
