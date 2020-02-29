@@ -36,7 +36,7 @@ export default class List extends Component {
   }
 
   async fetchPokemonsList() {
-    const response = await fetch('https://pokeapi.co/api/v2/pokemon/?limit=10', {
+    const response = await fetch('https://pokeapi.co/api/v2/pokemon/?limit=30', {
       headers: {
         'Content-Type': 'application/json'
       }
