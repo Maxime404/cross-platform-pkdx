@@ -26,10 +26,11 @@ export default class MyApp extends Component {
     }
 
     checkUser() {
+        const vm = this;
         firebase.auth().onAuthStateChanged((user) => {
-            this.setState({ loading: false, user });
+            vm.setState({ loading: false, user });
             if (user && Object.keys(user).length > 0) {
-                this.goTo('User', { user: user });
+                vm.goTo('User', { user: user });
             }
         });
     }

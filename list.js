@@ -4,9 +4,11 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
-  Image
+  Image,
+  Alert
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import firebase from './firebaseConfig';
 import styles from './assets/styles';
 
 export default class List extends Component {
@@ -15,12 +17,15 @@ export default class List extends Component {
     super(props);
     this.state =
     {
-      pokemons: []
+      pokemons: [],
+      user: {},
+      fav: []
     }
   }
 
   componentDidMount() {
     this.fetchPokemonsList();
+    this.checkUser();
   }
 
   async fetchPokemonsList() {
@@ -66,11 +71,56 @@ export default class List extends Component {
     this.props.navigation.navigate('Pokemon', { pokemon: pokemon });
   }
 
+  checkUser() {
+    firebase.auth().onAuthStateChanged((user) => {
+      this.setState({ loading: false, user });
+      this.checkUserData();
+    });
+  }
+
+  favIt(id, i) {
+    if (this.state.user && Object.keys(this.state.user).length > 0) {
+      if (this.state.fav.includes(id)) {
+        this.setState(this.state.pokemons[i].favIcon = 'heart-outline' );
+      } else {
+        this.setState(this.state.pokemons[i].favIcon = 'heart' );
+      }
+    } else {
+      Alert.alert('Vous devez vous connecter pour accéder à cette fonctionnalité...')
+    }
+  }
+
+  favSync() {
+    const vm = this;
+    this.state.pokemons.map((pokemon, i) => {
+      vm.state.pokemons[i].favIcon = (vm.state.fav.includes(pokemon.id)) ? 'heart' : 'heart-outline' ;
+      vm.setState(vm.state.pokemons[i]);
+    });
+  }
+
+  checkUserData() {
+    const vm = this;
+    const userUid = this.state.user.uid || {};
+    firebase.database().ref('Users/' + userUid + '/').once('value', function (snapshot) {
+      if (snapshot.exists() && userUid) {
+        vm.readUserData(userUid);
+      }
+    });
+  }
+
+  readUserData(userUid) {
+    const vm = this;
+    firebase.database().ref('Users/' + userUid + '/').once('value', function (snapshot) {
+      vm.setState(vm.state.fav = snapshot.val().fav);
+      vm.favSync();
+    });
+  }
+
   render() {
     return (
       <ScrollView style={styles.scrollView}>
-        <View style={styles.viewList}>
-          {this.state.pokemons.map((pokemon) =>
+        <View style={styles.viewPokeList}>
+          {this.state.pokemons.map((pokemon, i) =>
             <TouchableOpacity
               key={pokemon.id}
               style={styles.pokeCards}
@@ -90,9 +140,10 @@ export default class List extends Component {
                   source={{ uri: pokemon.image }}
                 />
                 <Icon
-                  name="star-outline"
+                  name={pokemon.favIcon}
                   size={20}
-                  style={{ marginTop: -30, marginRight: -5 }}
+                  style={{ marginTop: -40, marginRight: -10 }}
+                  onPress={() => this.favIt(pokemon.id, i)}
                 />
               </View>
             </TouchableOpacity>

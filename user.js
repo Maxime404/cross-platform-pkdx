@@ -69,7 +69,7 @@ export default class MyApp extends Component {
 
     writeUserData(userUid) {
         this.state.firebase.database().ref('Users/' + userUid + '/').set({
-            '0': true
+            fav: [0]
         }).then((data) => {
             console.log('data ', data)
         }).catch((error) => {

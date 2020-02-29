@@ -41,6 +41,11 @@ export default StyleSheet.create({
     flex: 1,
     alignItems: "center"
   },
+  viewPokeList: {
+    flex: 1,
+    alignItems: "center",
+    marginBottom: 10
+  },
   pokeCards: {
     flexDirection: 'row',
     paddingHorizontal: 10,
