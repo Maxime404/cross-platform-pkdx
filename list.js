@@ -245,7 +245,6 @@ export default class List extends Component {
       this.setState({ favFilterIcon: 'heart' });
       this.setState({
         pokemons: this.state.pokemons_ref.filter((pokemon) => {
-          console.log(pokemon.favIcon)
           return pokemon.favIcon === "heart"
         })
       });

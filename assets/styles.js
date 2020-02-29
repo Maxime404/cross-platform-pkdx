@@ -54,6 +54,11 @@ export default StyleSheet.create({
     marginHorizontal: 20,
     borderRadius: 10
   },
+  viewValue: {
+    flexDirection: 'row',
+    paddingBottom: 10,
+    alignItems: "center"
+  },
   pokeCards: {
     flexDirection: 'row',
     paddingHorizontal: 10,
@@ -75,8 +80,9 @@ export default StyleSheet.create({
   pokeCard: {
     paddingHorizontal: 10,
     marginTop: 100,
+    paddingBottom: 35,
     width: '100%',
-    height: '100%',
+    height: 'auto',
     borderRadius: 20,
     backgroundColor: '#EEE',
     shadowColor: "#000",
@@ -184,5 +190,12 @@ export default StyleSheet.create({
     width: 300,
     borderBottomWidth: 1.0,
     marginRight: 5
+  },
+  grey: {
+    color: 'grey'
+  },
+  bold: {
+    fontSize: 15,
+    fontWeight: 'bold'
   }
 });

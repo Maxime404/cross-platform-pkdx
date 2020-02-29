@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import {
   View,
   Text,
-  Button,
   ScrollView,
   Image
 } from 'react-native';
@@ -14,7 +13,10 @@ export default class Details extends Component {
     super(props);
     this.state =
     {
-      pokemon: {}
+      pokemon: {},
+      types: [],
+      abilities: [],
+      game_indices: []
     }
   }
 
@@ -44,6 +46,14 @@ export default class Details extends Component {
 
     this.state.pokemon.image = data.sprites.front_default;
     this.setState(this.state.pokemon);
+    this.getInfos();
+  }
+
+  getInfos() {
+    const pokemon = this.state.pokemon;
+    this.setState({ types: pokemon.types });
+    this.setState({ abilities: pokemon.abilities });
+    this.setState({ game_indices: pokemon.game_indices });
   }
 
   render() {
@@ -62,7 +72,34 @@ export default class Details extends Component {
               />
             </View>
             <View style={styles.viewList}>
-              <Text>{JSON.stringify(this.state.pokemon.weight)}</Text>
+              <Text style={{ fontSize: 20 }}>-- #{this.state.pokemon.id} --</Text>
+              <View style={{ flex: 1, width: '95%' }}>
+                <View style={styles.viewValue}>
+                  <Text style={styles.bold}>Weight :  </Text>
+                  <Text style={styles.grey}>{this.state.pokemon.weight} Lbs</Text>
+                </View>
+                <View style={styles.viewValue}>
+                  <Text style={styles.bold}>{this.state.types.length > 1 ? "Types :  " : "Type :  "}</Text>
+                  {this.state.types.map((type) =>
+                    <Text style={styles.grey}>{type.type.name}  </Text>
+                  )}
+                </View>
+                <View style={styles.viewValue}>
+                  <Text style={styles.bold}>{this.state.types.length > 1 ? "Abilities :  " : "Ability :  "}</Text>
+                  {this.state.abilities.map((ability) =>
+                    <Text style={styles.grey}>{ability.ability.name}  </Text>
+                  )}
+                </View>
+                <View style={{ borderTopWidth: 1.0, borderTopColor: 'grey', paddingTop: 5 }}>
+                  <Text style={styles.bold}>{this.state.types.length > 1 ? "Present in the versions : " : "Present in the version : "}</Text>
+                  <Text>
+                    {this.state.game_indices.map((game_indice) =>
+                      <Text style={styles.grey}>{game_indice.version.name}  </Text>
+                    )}
+                  </Text>
+                </View>
+
+              </View>
             </View>
           </View>
         </View>
