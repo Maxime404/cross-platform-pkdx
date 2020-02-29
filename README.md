@@ -27,6 +27,7 @@ Instruction :
 ## START firebaseConfig.js ##########
 import * as firebase from "firebase";
 const firebaseConfig = {
+    ```
     apiKey: "",
     authDomain: "",
     databaseURL: "",
@@ -35,6 +36,7 @@ const firebaseConfig = {
     messagingSenderId: "",
     appId: "",
     measurementId: ""
+    ```
 };
 
 // Initialize Firebase
@@ -80,7 +82,7 @@ The purpose of this challenge is simple, create a new pokedex but now... a real 
 
 Hi, Pokédex?
 
-Well, first just bootstrap a react-native application using expo that list all pokemons availables on this PokéApi.
+Well, first just bootstrap a react-native application using expo that list all pokemons availables on [this](https://pokeapi.co/) PokéApi.
 
 Basic pokémon view
 
