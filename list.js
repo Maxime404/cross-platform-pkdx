@@ -6,7 +6,8 @@ import {
   ScrollView,
   Image,
   Alert,
-  TextInput
+  TextInput,
+  FlatList
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ModalSelector from 'react-native-modal-selector';
@@ -19,6 +20,7 @@ export default class List extends Component {
     super(props);
     this.state =
     {
+      url: 'https://pokeapi.co/api/v2/pokemon/?limit=20',
       pokemons_ref: [],
       pokemons: [],
       user: {},
@@ -42,7 +44,7 @@ export default class List extends Component {
   }
 
   async fetchPokemonsList() {
-    const response = await fetch('https://pokeapi.co/api/v2/pokemon/?limit=26', {
+    const response = await fetch(this.state.url, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -50,9 +52,13 @@ export default class List extends Component {
 
     const data = await response.json();
     //console.log(data)
-    //this.setState({ pokemons: data.sort((a, b) => a.ndex - b.ndex) });
-    this.setState({ pokemons_ref: data.results });
-    this.setState({ pokemons: data.results });
+    this.setState(
+      {
+        url: data.next,
+        pokemons_ref: [this.state.pokemons_ref, ...data.results],
+        pokemons: [this.state.pokemons, ...data.results],
+      }
+    );
     this.favSync();
     this.getPokemonsDetails();
   }
@@ -60,7 +66,10 @@ export default class List extends Component {
   getPokemonsDetails() {
     const lenght = this.state.pokemons.length - 1;
     this.state.pokemons.forEach((pokemon, i) => {
-      this.fetchPokemonDetails(pokemon, lenght, i);
+      if (!pokemon.id) {
+        console.log('DETAILS : ', i)
+        this.fetchPokemonDetails(pokemon, lenght, i);
+      }
     });
   }
 
@@ -79,8 +88,12 @@ export default class List extends Component {
       pokemons_ref[id].id = data.id;
       pokemons_ref[id].image = data.sprites.front_default;
     }
-    this.setState({ pokemons_ref });
-    this.setState({ pokemons: pokemons_ref });
+    this.setState(
+      {
+        pokemons_ref,
+        pokemons: pokemons_ref
+      }
+    );
     setTimeout(() => {
       if (lenght === i && this.state.userUid) vm.writeUserPokemonsData();
     }, 1);
@@ -274,7 +287,7 @@ export default class List extends Component {
 
   render() {
     return (
-      <ScrollView style={styles.scrollView}>
+      <View style={styles.scrollView}>
         <View style={styles.viewSearch}>
           <TextInput
             name="search"
@@ -304,36 +317,46 @@ export default class List extends Component {
           />
         </View>
         <View style={styles.viewPokeList}>
-          {this.state.pokemons.map((pokemon) =>
-            <TouchableOpacity
-              key={pokemon.id}
-              style={styles.pokeCards}
-              onPress={() => this.goToPokemonDetailsPage(pokemon)}
-            >
-              <View style={{ marginHorizontal: 10 }}>
-                <Text style={{ fontSize: 17, fontWeight: 'bold' }}>{pokemon.name}</Text>
-                <Text style={{ fontSize: 14 }}>#{pokemon.id}</Text>
-              </View>
-              <View style={styles.viewImg}>
-                <Image
-                  style={styles.pokeballImg}
-                  source={require('./assets/pokeball.png')}
-                />
-                <Image
-                  style={styles.img}
-                  source={{ uri: pokemon.image }}
-                />
-                <Icon
-                  name={pokemon.favIcon}
-                  size={20}
-                  style={{ marginTop: -40, marginRight: -10 }}
-                  onPress={() => this.favIt(pokemon.id)}
-                />
-              </View>
-            </TouchableOpacity>
-          )}
+          {
+            this.state.pokemons.length > 0 ?
+
+              <FlatList
+                contentContainerStyle={{ paddingBottom: 20 }}
+                data={this.state.pokemons}
+                keyExtractor={item => item.id}
+                renderItem={({ item }) =>
+                  <TouchableOpacity
+                    key={item.id}
+                    style={styles.pokeCards}
+                    onPress={() => this.goToPokemonDetailsPage(item)}
+                  >
+                    <View style={{ marginHorizontal: 10 }}>
+                      <Text style={{ fontSize: 17, fontWeight: 'bold' }}>{item.name}</Text>
+                      <Text style={{ fontSize: 14 }}>#{item.id}</Text>
+                    </View>
+                    <View style={styles.viewImg}>
+                      <Image
+                        style={styles.pokeballImg}
+                        source={require('./assets/pokeball.png')}
+                      />
+                      <Image
+                        style={styles.img}
+                        source={{ uri: item.image }}
+                      />
+                      <Icon
+                        name={item.favIcon}
+                        size={20}
+                        style={{ marginTop: -40, marginRight: -10 }}
+                        onPress={() => this.favIt(item.id)}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                }
+              />
+              : null
+          }
         </View>
-      </ScrollView >
+      </View >
     );
   }
 }

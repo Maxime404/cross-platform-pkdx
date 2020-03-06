@@ -42,18 +42,14 @@ export default StyleSheet.create({
     alignItems: "center"
   },
   viewPokeList: {
-    flex: 1,
-    alignItems: "center",
-    marginBottom: 10
+    flex: 1
   },
   viewSearch: {
     flexDirection: 'row',
     justifyContent: "center",
     alignItems: "center",
-    //backgroundColor: "#EEE",
     marginHorizontal: 20,
-    marginVertical: 10,
-    //borderRadius: 10
+    marginVertical: 10
   },
   viewValue: {
     flexDirection: 'row',
@@ -63,8 +59,8 @@ export default StyleSheet.create({
   pokeCards: {
     flexDirection: 'row',
     paddingHorizontal: 10,
+    marginHorizontal: 10,
     marginTop: 10,
-    width: '90%',
     height: 80,
     justifyContent: "space-between",
     alignItems: "center",
