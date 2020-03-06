@@ -8,7 +8,6 @@ import {
     SafeAreaView
 } from 'react-native';
 import styles from './assets/styles';
-import * as firebase from "firebase";
 
 export default class MyApp extends Component {
     constructor(props) {
@@ -16,23 +15,26 @@ export default class MyApp extends Component {
         this.state = {
             email: '',
             password: '',
-            passwordConfirm: ''
+            passwordConfirm: '',
+            firebase: {}
         };
     }
 
     componentDidMount() {
         const { params } = this.props.route;
-        //const { item } = params || {};
-        //this.setState({ item });
+        const { firebase } = params || {};
+
+        this.setState({ firebase });
     }
 
     goTo(page, params = {}) {
+        params = { firebase: this.state.firebase };
         this.props.navigation.navigate(page, params);
     }
 
     signUp() {
         if (this.state.password === this.state.passwordConfirm) {
-            firebase
+            this.state.firebase
                 .auth()
                 .createUserWithEmailAndPassword(this.state.email, this.state.password)
                 .then(res => {
