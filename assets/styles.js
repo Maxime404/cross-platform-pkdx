@@ -44,16 +44,14 @@ export default StyleSheet.create({
   viewPokeList: {
     flex: 1,
     alignItems: "center",
-    marginBottom: 10
+    marginBottom: 20
   },
   viewSearch: {
     flexDirection: 'row',
     justifyContent: "center",
     alignItems: "center",
-    //backgroundColor: "#EEE",
     marginHorizontal: 20,
     marginVertical: 10,
-    //borderRadius: 10
   },
   viewValue: {
     flexDirection: 'row',

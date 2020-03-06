@@ -8,7 +8,7 @@ import {
     SafeAreaView
 } from 'react-native';
 import styles from './assets/styles';
-import firebase from './firebaseConfig';
+import * as firebase from "firebase";
 
 export default class MyApp extends Component {
     constructor(props) {
@@ -28,7 +28,6 @@ export default class MyApp extends Component {
     checkUser() {
         const vm = this;
         firebase.auth().onAuthStateChanged((user) => {
-            vm.setState({ loading: false, user });
             if (user && Object.keys(user).length > 0) {
                 vm.goTo('User', { user: user });
             }
@@ -36,7 +35,6 @@ export default class MyApp extends Component {
     }
 
     goTo(page, params = {}) {
-        params = { firebase: firebase };
         this.props.navigation.navigate(page, params);
     }
 

@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from './assets/styles';
+import * as firebase from "firebase";
 
 export default class Details extends Component {
   constructor(props) {

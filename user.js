@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import {
     View,
     Text,
-    TextInput,
     Button,
     Alert,
     SafeAreaView
 } from 'react-native';
 import styles from './assets/styles';
+import * as firebase from "firebase";
 
 export default class MyApp extends Component {
     constructor(props) {
@@ -15,7 +15,6 @@ export default class MyApp extends Component {
         this.state = {
             email: '',
             password: '',
-            firebase: {},
             user: {},
             loading: true
         };
@@ -23,15 +22,14 @@ export default class MyApp extends Component {
 
     componentDidMount() {
         const { params } = this.props.route;
-        const { firebase } = params || {};
         const { user } = params || {};
 
-        this.setState({ firebase, user });
+        this.setState({ user });
         this.checkUser();
     }
 
     checkUser() {
-        this.props.route.params.firebase.auth().onAuthStateChanged((user) => {
+        firebase.auth().onAuthStateChanged((user) => {
             this.setState({ loading: false, user: user || {} });
             this.checkUserData();
         });
@@ -42,14 +40,14 @@ export default class MyApp extends Component {
     }
 
     getUser() {
-        const user = this.state.firebase.auth().currentUser;
+        const user = firebase.auth().currentUser;
         Alert.alert(user && Object.keys(user).length > 0
             ? JSON.stringify(user)
             : 'Nothing here ! : ' + JSON.stringify(this.state.user))
     }
 
     signOut = async () => {
-        await this.state.firebase.auth().signOut().then(res => {
+        await firebase.auth().signOut().then(res => {
             Alert.alert(JSON.stringify('Sign Out successful !'));
             this.goTo('SignIn');
         }).catch(error => {
@@ -60,7 +58,7 @@ export default class MyApp extends Component {
     checkUserData() {
         const vm = this;
         const userUid = this.state.user.uid;
-        this.state.firebase.database().ref('Users/' + userUid + '/').once('value', function (snapshot) {
+        firebase.database().ref('Users/' + userUid + '/').once('value', function (snapshot) {
             if (!snapshot.exists() && userUid) {
                 vm.writeUserData(userUid);
             }
@@ -68,7 +66,7 @@ export default class MyApp extends Component {
     }
 
     writeUserData(userUid) {
-        this.state.firebase.database().ref('Users/' + userUid + '/').set({
+        firebase.database().ref('Users/' + userUid + '/').set({
             email: this.state.user.email,
             fav: [0]
         }).catch((error) => {

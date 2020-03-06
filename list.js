@@ -9,8 +9,8 @@ import {
   TextInput
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import * as firebase from "firebase";
 import ModalSelector from 'react-native-modal-selector';
-import firebase from './firebaseConfig';
 import styles from './assets/styles';
 
 export default class List extends Component {

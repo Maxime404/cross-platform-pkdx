@@ -1,11 +1,18 @@
-import React, { Component } from 'react';
-import { Platform, StyleSheet, Text, View, SafeAreaView, ScrollView, Dimensions, Image } from 'react-native';
+import React from 'react';
+import { SafeAreaView, ScrollView, Dimensions } from 'react-native';
 import { createAppContainer } from 'react-navigation';
 import { createDrawerNavigator, DrawerItems } from 'react-navigation-drawer';
+import * as firebase from "firebase";
+import firebaseConfig from './firebaseConfig';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import Pokemons from './pokemons';
 import Login from './firebaseLogin';
+
+// Initialize Firebase
+(!firebase.apps.length)
+? firebase.initializeApp(firebaseConfig)
+: firebase;
 
 const { width } = Dimensions.get("window");
 
