@@ -16,18 +16,17 @@ export default class MyApp extends Component {
             email: '',
             password: '',
             firebase: {},
-            user: {},
-            loading: true
+            user: {}
         };
     }
 
     componentDidMount() {
         const { params } = this.props.route;
-        const { firebase } = params || {};
-        const { user } = params || {};
+        const { firebase, user } = params || {};
 
-        this.setState({ firebase, user });
-        this.checkUser();
+        this.setState({ firebase, user }, () => { 
+            this.checkUser();
+        });
     }
 
     checkUser() {
@@ -86,12 +85,6 @@ export default class MyApp extends Component {
                             style={styles.button}
                             title="Sign Out"
                             onPress={() => this.signOut()}
-                        />
-                    </View>
-                    <View style={{ marginTop: 20 }}>
-                        <Button
-                            title="Show user"
-                            onPress={() => this.getUser()}
                         />
                     </View>
                 </View>

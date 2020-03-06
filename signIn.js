@@ -35,8 +35,8 @@ export default class MyApp extends Component {
         });
     }
 
-    goTo(page, params = {}) {
-        params = { firebase: firebase };
+    goTo(page, user) {
+        params = { firebase: firebase, user: user};
         this.props.navigation.navigate(page, params);
     }
 

@@ -13,7 +13,12 @@ export default class Details extends Component {
     super(props);
     this.state =
     {
+      firebase: {},
       pokemon: {},
+      user: {},
+      userUid: '',
+      favIcon: 'heart-outline',
+      fav: [],
       types: [],
       abilities: [],
       stats: [],
@@ -27,11 +32,25 @@ export default class Details extends Component {
 
   getPokemon() {
     const { params } = this.props.route;
-    const pokemon = params ? params.pokemon : null;
+    const { firebase, pokemon } = params || {};
 
-    this.setState({ pokemon: pokemon });
+    this.setState({ firebase, pokemon }, () => {
+      this.setState({ favIcon: pokemon.favIcon })
+      this.checkUser();
+    });
 
-    this.fetchPokemonDetails(pokemon.url)
+    this.fetchPokemonDetails(pokemon.url);
+  }
+
+  checkUser() {
+    this.state.firebase.auth().onAuthStateChanged((user) => {
+      this.setState(
+        {
+          user: user || {},
+          userUid: user.uid || ''
+        }
+      );
+    });
   }
 
   async fetchPokemonDetails(url) {
@@ -42,12 +61,11 @@ export default class Details extends Component {
     })
 
     const data = await response.json();
+    data.image = data.sprites.front_default;
 
-    this.setState({ pokemon: data });
-
-    this.state.pokemon.image = data.sprites.front_default;
-    this.setState(this.state.pokemon);
-    this.getInfos();
+    this.setState({ pokemon: data }, () => {
+      this.getInfos();
+    });
   }
 
 
@@ -57,6 +75,51 @@ export default class Details extends Component {
     this.setState({ abilities: pokemon.abilities });
     this.setState({ stats: pokemon.stats });
     this.setState({ game_indices: pokemon.game_indices });
+  }
+
+  favIt(id) {
+    if (this.state.user && Object.keys(this.state.user).length > 0) {
+      this.readUserFavData();
+      if (this.state.fav.includes(id)) {
+        const i = this.state.fav.indexOf(id);
+        if (i > -1) {
+          this.setState(
+            {
+              fav: [...this.state.fav = this.state.fav.splice(i, 1)],
+              favIcon: 'heart-outline'
+            }
+          );
+          this.writeUserFavData();
+        }
+      } else {
+        this.setState(
+          {
+            fav: [...this.state.fav = this.state.fav.push(id)],
+            favIcon: 'heart'
+          }
+        );
+        this.writeUserFavData();
+      }
+    } else {
+      Alert.alert('You need to be logged in to access this feature...');
+    }
+  }
+
+  readUserFavData() {
+    const vm = this;
+    this.state.firebase.database().ref('Users/' + this.state.userUid + '/fav').once('value', function (snapshot) {
+      vm.setState({fav: [snapshot.val()]});
+    });
+  }
+
+  writeUserFavData() {
+    const fav = this.state.fav;
+    const userUid = this.state.userUid && this.state.userUid || '';
+    this.state.firebase.database().ref('Users/' + userUid + '/').update({
+      fav
+    }).catch((error) => {
+      Alert.alert('Error : ', error);
+    });
   }
 
   render() {
@@ -72,6 +135,12 @@ export default class Details extends Component {
               <Image
                 style={styles.pokeImg}
                 source={{ uri: this.state.pokemon.image }}
+              />
+              <Icon
+                style={styles.pokeFav}
+                name={this.state.favIcon}
+                size={20}
+                onPress={() => this.favIt(this.state.pokemon.id)}
               />
             </View>
             <View style={styles.viewList}>
@@ -115,9 +184,9 @@ export default class Details extends Component {
                 </View>
               </View>
               <Image
-                  style={styles.pokeballEnd}
-                  source={require('./assets/pokeball.png')}
-                />
+                style={styles.pokeballEnd}
+                source={require('./assets/pokeball.png')}
+              />
             </View>
           </View>
         </View>

@@ -183,6 +183,11 @@ export default StyleSheet.create({
     width: 60,
     marginTop: 40
   },
+  pokeFav: {
+    position: 'absolute',
+    top: 120,
+    right: 0
+  },
   scrollView: {
     flex: 1,
     backgroundColor: '#C20000'

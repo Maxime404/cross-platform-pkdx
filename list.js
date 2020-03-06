@@ -51,8 +51,12 @@ export default class List extends Component {
     const data = await response.json();
     //console.log(data)
     //this.setState({ pokemons: data.sort((a, b) => a.ndex - b.ndex) });
-    this.setState({ pokemons_ref: data.results });
-    this.setState({ pokemons: data.results });
+    this.setState(
+      {
+        pokemons_ref: data.results,
+        pokemons: data.results
+      }
+    );
     this.favSync();
     this.getPokemonsDetails();
   }
@@ -87,12 +91,13 @@ export default class List extends Component {
   }
 
   goToPokemonDetailsPage(pokemon) {
-    this.props.navigation.navigate('Pokemon', { pokemon: pokemon });
+    params = { firebase: firebase, pokemon: pokemon };
+    this.props.navigation.navigate('Pokemon', params);
   }
 
   checkUser() {
     firebase.auth().onAuthStateChanged((user) => {
-      this.setState({ loading: false, user });
+      this.setState({ user });
       this.getUserUid();
     });
   }
@@ -295,7 +300,6 @@ export default class List extends Component {
               onPress={() => this.favFilter()}
             />
           </ModalSelector>
-
           <Icon
             style={styles.icon}
             name={this.state.favFilterIcon}
