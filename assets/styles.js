@@ -52,7 +52,8 @@ export default StyleSheet.create({
     alignItems: "center",
     //backgroundColor: "#EEE",
     marginHorizontal: 20,
-    borderRadius: 10
+    marginVertical: 10,
+    //borderRadius: 10
   },
   viewValue: {
     flexDirection: 'row',
@@ -193,12 +194,15 @@ export default StyleSheet.create({
   },
   icon: {
     fontSize: 20,
-    color: "#FFF"
+    color: "#FFF",
+    marginHorizontal: 2.5
   },
   input: {
-    height: 40,
-    width: 300,
+    height: 30,
+    width: 250,
     borderBottomWidth: 1.0,
+    borderBottomColor: '#FFF',
+    color: '#FFF',
     marginRight: 5
   },
   grey: {

@@ -6,10 +6,10 @@ import {
   ScrollView,
   Image,
   Alert,
-  Picker,
   TextInput
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import ModalSelector from 'react-native-modal-selector';
 import firebase from './firebaseConfig';
 import styles from './assets/styles';
 
@@ -24,9 +24,15 @@ export default class List extends Component {
       user: {},
       userUid: '',
       fav: [],
-      text: '',
-      order: '',
-      favFilterIcon: 'heart-outline'
+      textInputValue: '',
+      favFilterIcon: 'heart-outline',
+      orderData: [
+        { key: 1, section: true, label: 'Order by Id' },
+        { key: 2, section: false, label: 'Disorder by Id' },
+        { key: 3, section: false, label: 'Order by Name' },
+        { key: 4, section: false, label: 'Disorder by Name' }
+      ],
+      orderValue: ''
     }
   }
 
@@ -194,28 +200,36 @@ export default class List extends Component {
     });
   }
 
-  handleSearchChange(text) {
-    this.setState({ text });
+  handleSearchChange(textInputValue) {
+    this.setState({ textInputValue });
     this.setState({
       pokemons: this.state.pokemons_ref.filter((pokemon) => {
-        return this.ignoreCase(`${pokemon.id}${pokemon.name}`).includes(this.ignoreCase(text));
+        return this.ignoreCase(`${pokemon.id}${pokemon.name}`).includes(this.ignoreCase(textInputValue));
       })
     });
   }
 
-  handleSelectChange(order) {
-    this.setState({ order });
+  handleSelectChange(orderValue) {
+    this.setState(prevState => ({
+      orderData: prevState.orderData.map(
+        data => data.label === orderValue
+          ? { ...data, section: true }
+          : { ...data, section: false }
+      )
+    }));
+
+    this.setState({ orderValue });
 
     switch (true) {
-      case (order === 'orderById'):
+      case (orderValue === 'Order by Id'):
         this.setState({ pokemons: this.state.pokemons.sort((a, b) => a.id - b.id) });
         break;
 
-      case (order === 'disorderById'):
+      case (orderValue === 'Disorder by Id'):
         this.setState({ pokemons: this.state.pokemons.sort((a, b) => b.id - a.id) });
         break;
 
-      case (order === 'orderByName'):
+      case (orderValue === 'Order by Name'):
         this.setState({
           pokemons: this.state.pokemons.sort((a, b) => {
             return (this.ignoreCase(a.name) > this.ignoreCase(b.name)) ? 1 : (this.ignoreCase(a.name) < this.ignoreCase(b.name)) ? -1 : 0
@@ -223,7 +237,7 @@ export default class List extends Component {
         });
         break;
 
-      case (order === 'disorderByName'):
+      case (orderValue === 'Disorder by Names'):
         this.setState({
           pokemons: this.state.pokemons.sort((a, b) => {
             return (this.ignoreCase(b.name) > this.ignoreCase(a.name)) ? 1 : (this.ignoreCase(b.name) < this.ignoreCase(a.name)) ? -1 : 0
@@ -264,23 +278,26 @@ export default class List extends Component {
         <View style={styles.viewSearch}>
           <TextInput
             name="search"
-            style={{ height: 30, width: 250, borderBottomWidth: 1.0, marginRight: 5 }}
+            style={styles.input}
             placeholder="Search..."
-            onChangeText={text => this.handleSearchChange(text)}
+            placeholderTextColor="#FFF"
+            onChangeText={textInputValue => this.handleSearchChange(textInputValue)}
           >
-            {this.state.text}
+            {this.state.textInputValue}
           </TextInput>
-          <Picker
-            selectedValue={this.state.order}
-            style={{ height: 50, width: 50 }}
-            onValueChange={(order) => this.handleSelectChange(order)}
-          >
-            <Picker.Item label="Order by Id" value="orderById" />
-            <Picker.Item label="Disorder by Id" value="disorderById" />
-            <Picker.Item label="Order by Name" value="orderByName" />
-            <Picker.Item label="Disorder by Name" value="disorderByName" />
-          </Picker>
+          <ModalSelector
+            data={this.state.orderData}
+            onChange={(option) => { this.handleSelectChange(option.label) }}>
+            <Icon
+              style={styles.icon}
+              name='arrow-down-drop-circle'
+              size={20}
+              onPress={() => this.favFilter()}
+            />
+          </ModalSelector>
+
           <Icon
+            style={styles.icon}
             name={this.state.favFilterIcon}
             size={20}
             onPress={() => this.favFilter()}
@@ -316,7 +333,7 @@ export default class List extends Component {
             </TouchableOpacity>
           )}
         </View>
-      </ScrollView>
+      </ScrollView >
     );
   }
 }
