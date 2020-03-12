@@ -83,18 +83,20 @@ export default class Details extends Component {
       if (this.state.fav.includes(id)) {
         const i = this.state.fav.indexOf(id);
         if (i > -1) {
+          this.state.fav.splice(i, 1);
           this.setState(
             {
-              fav: [...this.state.fav = this.state.fav.splice(i, 1)],
+              fav,
               favIcon: 'heart-outline'
             }
           );
           this.writeUserFavData();
         }
       } else {
+        this.state.fav.push(id);
         this.setState(
           {
-            fav: [...this.state.fav = this.state.fav.push(id)],
+            fav,
             favIcon: 'heart'
           }
         );
@@ -140,7 +142,7 @@ export default class Details extends Component {
                 style={styles.pokeFav}
                 name={this.state.favIcon}
                 size={20}
-                onPress={() => this.favIt(this.state.pokemon.id)}
+                //onPress={() => this.favIt(this.state.pokemon.id)}
               />
             </View>
             <View style={styles.viewList}>
